@@ -290,7 +290,7 @@ int main(int argc, char** argv) {
   }
   if (params.cexioEnable &&
          (params.cexioApi.empty() == false || params.demoMode == true)) {
-    params.addExchange("Cexio", params.cexioFees, false, true);
+    params.addExchange("Cexio", params.cexioFees, true, true);
     getQuote[index] = Cexio::getQuote;
     getAvail[index] = Cexio::getAvail;
     sendLongOrder[index] = Cexio::sendLongOrder;
@@ -441,8 +441,8 @@ int main(int argc, char** argv) {
                    [&params]( decltype(*getAvail) apply )
                    {
                      Balance tmp {};
-                     tmp.leg1 = apply(params, params.leg1.c_str()); 
-                     tmp.leg2 = apply(params, params.leg2.c_str()); 
+                     tmp.leg1 = apply(params, params.leg1.c_str());
+                     tmp.leg2 = apply(params, params.leg2.c_str());
                      return tmp;
                    } );
 
@@ -549,7 +549,7 @@ int main(int argc, char** argv) {
   bool stillRunning = true;
   time_t currTime;
   time_t diffTime;
-  
+
   // Main analysis loop
   while (stillRunning) {
     currTime = mktime(&timeinfo);
@@ -849,9 +849,9 @@ int main(int argc, char** argv) {
           // print the new balances
           logFile << "New balance on " << tradeVec[i].exchNameLong << ":  \t";
           logFile.precision(2);
-          logFile << balance[tradeVec[i].idExchLong].leg2After << " " << params.leg2 << " (perf " 
+          logFile << balance[tradeVec[i].idExchLong].leg2After << " " << params.leg2 << " (perf "
           << balance[tradeVec[i].idExchLong].leg2After - balance[tradeVec[i].idExchLong].leg2 << "), ";
-          logFile << std::setprecision(6) 
+          logFile << std::setprecision(6)
           << balance[tradeVec[i].idExchLong].leg1After << " " << params.leg1 << "\n";
 
           logFile << "New balance on " << tradeVec[i].exchNameShort << ": \t";
