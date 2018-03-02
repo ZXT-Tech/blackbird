@@ -62,7 +62,7 @@ double getAvail(Parameters &params, std::string currency)
     const char *avail_str = json_string_value(json_object_get(result, "ZUSD"));
     available = avail_str ? atof(avail_str) : 0.0;
   }
-  else if (currency.compare("btc") == 0)
+  else if (currency.compare("ltc") == 0)
   {
     const char *avail_str = json_string_value(json_object_get(result, "XXBT"));
     available = avail_str ? atof(avail_str) : 0.0;
@@ -167,7 +167,7 @@ bool isOrderComplete(Parameters &params, std::string orderId)
 
 double getActivePos(Parameters &params)
 {
-  return getAvail(params, "btc");
+  return getAvail(params, "ltc");
 }
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
@@ -242,7 +242,7 @@ void testKraken()
 
   std::cout << "Current value LEG1_LEG2 bid: " << getQuote(params).bid() << std::endl;
   std::cout << "Current value LEG1_LEG2 ask: " << getQuote(params).ask() << std::endl;
-  std::cout << "Current balance BTC: " << getAvail(params, "btc") << std::endl;
+  std::cout << "Current balance LTC: " << getAvail(params, "ltc") << std::endl;
   std::cout << "Current balance USD: " << getAvail(params, "usd") << std::endl;
   std::cout << "Current balance ETH: " << getAvail(params, "eth") << std::endl;
   std::cout << "Current balance XMR: " << getAvail(params, "xmr") << std::endl;

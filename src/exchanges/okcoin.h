@@ -27,9 +27,9 @@ json_t* authRequest(Parameters& params, std::string url, std::string signature, 
 
 void getBorrowInfo(Parameters& params);
 
-int borrowBtc(Parameters& params, double amount);
+int borrowLtc(Parameters& params, double amount);
 
-void repayBtc(Parameters& params, int borrowId);
+void repayLtc(Parameters& params, int borrowId);
 
 }
 

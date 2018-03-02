@@ -71,7 +71,7 @@ double getAvail(Parameters &params, std::string currency)
 double getActivePos(Parameters &params)
 {
   // TODO: this is not really a good way to get active positions
-  return getAvail(params, "BTC");
+  return getAvail(params, "LTC");
 }
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
@@ -79,7 +79,7 @@ double getLimitPrice(Parameters &params, double volume, bool isBid)
   auto &exchange = queryHandle(params);
   // TODO: Build a real URL with leg1 leg2 and auth post it
   // FIXME: using level 2 order book - has aggregated data but should be sufficient for now.
-  unique_json root{exchange.getRequest("/products/BTC-USD/book?level=2")};
+  unique_json root{exchange.getRequest("/products/LTC-USD/book?level=2")};
   auto bidask = json_object_get(root.get(), isBid ? "bids" : "asks");
   *params.logFile << "<GDAX> Looking for a limit price to fill "
                   << std::setprecision(8) << fabs(volume) << " Legx...\n";
@@ -110,7 +110,7 @@ std::string sendLongOrder(Parameters &params, std::string direction, double quan
   *params.logFile << "<GDAX> Trying to send a \"" << direction << "\" limit order: "
                   << std::setprecision(8) << quantity << " @ $"
                   << std::setprecision(8) << price << "...\n";
-  std::string pair = "BTC-USD";
+  std::string pair = "LTC-USD";
   std::string type = direction;
   char buff[300];
   snprintf(buff, 300, "{\"size\":\"%.8f\",\"price\":\"%.8f\",\"side\":\"%s\",\"product_id\": \"%s\"}", quantity, price, type.c_str(), pair.c_str());
@@ -229,18 +229,18 @@ void testGDAX()
 
   //std::cout << "Current value LEG1_LEG2 bid: " << getQuote(params).bid() << std::endl;
   //std::cout << "Current value LEG1_LEG2 ask: " << getQuote(params).ask() << std::endl;
-  //std::cout << "Current balance BTC: " << getAvail(params, "BTC") << std::endl;
+  //std::cout << "Current balance LTC: " << getAvail(params, "LTC") << std::endl;
   //std::cout << "Current balance USD: " << getAvail(params, "USD")<< std::endl;
   //std::cout << "Current balance ETH: " << getAvail(params, "ETH")<< std::endl;
-  //std::cout << "Current balance BTC: " << getAvail(params, "BCH")<< std::endl;
+  //std::cout << "Current balance LTC: " << getAvail(params, "BCH")<< std::endl;
   //std::cout << "current bid limit price for 10 units: " << getLimitPrice(params, 10 , true) << std::endl;
   //std::cout << "Current ask limit price for .09 units: " << getLimitPrice(params, 0.09, false) << std::endl;
-  //std::cout << "Sending buy order for 0.005 BTC @ ASK! USD - TXID: " << std::endl;
+  //std::cout << "Sending buy order for 0.005 LTC @ ASK! USD - TXID: " << std::endl;
   //orderId = sendLongOrder(params, "buy", 0.005, getLimitPrice(params,.005,false));
   //std::cout << orderId << std::endl;
   //std::cout << "Buy Order is complete: " << isOrderComplete(params, orderId) << std::endl;
 
-  //std::cout << "Sending sell order for 0.02 BTC @ 10000 USD - TXID: " << std::endl;
+  //std::cout << "Sending sell order for 0.02 LTC @ 10000 USD - TXID: " << std::endl;
   //orderId = sendLongOrder(params, "sell", 0.02, 10000);
   //std::cout << orderId << std::endl;
   //std::cout << "Sell order is complete: " << isOrderComplete(params, orderId) << std::endl;

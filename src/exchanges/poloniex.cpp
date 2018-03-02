@@ -34,17 +34,17 @@ static json_t* checkResponse(std::ostream &logFile, json_t *root)
 }
 
 
-// We use ETH/BTC as there is no USD on Poloniex
-// TODO We could show BTC/USDT
+// We use ETH/LTC as there is no USD on Poloniex
+// TODO We could show LTC/USDT
 quote_t getQuote(Parameters &params)
 {
   auto &exchange = queryHandle(params);
   unique_json root { exchange.getRequest("/public?command=returnTicker") };
 
-  const char *quote = json_string_value(json_object_get(json_object_get(root.get(), "USDT_BTC"), "highestBid"));
+  const char *quote = json_string_value(json_object_get(json_object_get(root.get(), "USDT_LTC"), "highestBid"));
   auto bidValue = quote ? std::stod(quote) : 0.0;
 
-  quote = json_string_value(json_object_get(json_object_get(root.get(), "USDT_BTC"), "lowestAsk"));
+  quote = json_string_value(json_object_get(json_object_get(root.get(), "USDT_LTC"), "lowestAsk"));
   auto askValue = quote ? std::stod(quote) : 0.0;
 
   return std::make_pair(bidValue, askValue);
@@ -68,7 +68,7 @@ std::string sendLongOrder(Parameters& params, std::string direction, double quan
     return "0";
     }
   //TODO: Real currency string
-  std::string options = "currencyPair=USDT_BTC&rate=";
+  std::string options = "currencyPair=USDT_LTC&rate=";
   std::string volume = std::to_string(quantity);
   std::string pricelimit = std::to_string(price);
   options += pricelimit + "&amount=" + volume; 
@@ -84,7 +84,7 @@ std::string sendShortOrder(Parameters& params, std::string direction, double qua
 
 bool isOrderComplete(Parameters& params, std::string orderId)
 {
-  unique_json root { authRequest(params, "returnOpenOrders", "currencyPair=USDT_BTC") };
+  unique_json root { authRequest(params, "returnOpenOrders", "currencyPair=USDT_LTC") };
   auto n = json_array_size(root.get());
   while (n --> 0)
   {
@@ -115,14 +115,14 @@ double getActivePos(Parameters& params) {
   // }
   // return activeSize;
 
-  return getAvail(params, "BTC");
+  return getAvail(params, "LTC");
 }
 
 double getLimitPrice(Parameters& params, double volume, bool isBid) {
   auto &exchange = queryHandle(params);
   // TODO: build real curr string
   //std::string uri = "/public?command=returnOrderBook&currencyPair=";
-  unique_json root { exchange.getRequest("/public?command=returnOrderBook&currencyPair=USDT_BTC") };
+  unique_json root { exchange.getRequest("/public?command=returnOrderBook&currencyPair=USDT_LTC") };
   auto bidask  = json_object_get(root.get(),isBid ? "bids" : "asks");
   *params.logFile << "<Poloniex> Looking for a limit price to fill "
                   << std::setprecision(8) << fabs(volume) << " Legx...\n";

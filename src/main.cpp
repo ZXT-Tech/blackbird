@@ -88,9 +88,9 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
-  // We only trade BTC/USD for the moment
-  if (params.leg1.compare("BTC") != 0 || params.leg2.compare("USD") != 0) {
-    std::cout << "ERROR: Valid currency pair is only BTC/USD for now.\n" << std::endl;
+  // We only trade LTC/USD for the moment
+  if (params.leg1.compare("LTC") != 0 || params.leg2.compare("USD") != 0) {
+    std::cout << "ERROR: Valid currency pair is only LTC/USD for now.\n" << std::endl;
     exit(EXIT_FAILURE);
   }
 
@@ -353,18 +353,18 @@ int main(int argc, char** argv) {
     logFile << "Demo mode: trades won't be generated\n" << std::endl;
   }
 
-  // Shows which pair we are trading (BTC/USD only for the moment)
+  // Shows which pair we are trading (LTC/USD only for the moment)
   logFile << "Pair traded: " << params.leg1 << "/" << params.leg2 << "\n" << std::endl;
 
   std::cout << "Log file generated: " << logFileName << "\nBlackbird is running... (pid " << getpid() << ")\n" << std::endl;
   int numExch = params.nbExch();
-  // The btcVec vector contains details about every exchange,
+  // The ltcVec vector contains details about every exchange,
   // like fees, as specified in bitcoin.h
-  std::vector<Bitcoin> btcVec;
-  btcVec.reserve(numExch);
-  // Creates a new Bitcoin structure within btcVec for every exchange we want to trade on
+  std::vector<Bitcoin> ltcVec;
+  ltcVec.reserve(numExch);
+  // Creates a new Bitcoin structure within ltcVec for every exchange we want to trade on
   for (int i = 0; i < numExch; ++i) {
-    btcVec.push_back(Bitcoin(i, params.exchName[i], params.fees[i], params.canShort[i], params.isImplemented[i]));
+    ltcVec.push_back(Bitcoin(i, params.exchName[i], params.fees[i], params.canShort[i], params.isImplemented[i]));
   }
 
   // Inits cURL connections
@@ -394,7 +394,7 @@ int main(int argc, char** argv) {
                    [&params]( decltype(*getAvail) apply )
                    {
                      Balance tmp {};
-                     tmp.leg1 = apply(params, "btc");
+                     tmp.leg1 = apply(params, "ltc");
                      tmp.leg2 = apply(params, "usd");
                      return tmp;
                    } );
@@ -506,7 +506,7 @@ int main(int argc, char** argv) {
                 << bid << " / " << ask << std::endl;
       }
       // Updates the Bitcoin vector with the latest bid/ask data
-      btcVec[i].updateData(quote);
+      ltcVec[i].updateData(quote);
       curl_easy_reset(params.curl);
     }
     if (params.verbose) {
@@ -519,9 +519,9 @@ int main(int argc, char** argv) {
       for (int i = 0; i < numExch; ++i) {
         for (int j = 0; j < numExch; ++j) {
           if (i != j) {
-            if (btcVec[j].getHasShort()) {
-              double longMidPrice = btcVec[i].getMidPrice();
-              double shortMidPrice = btcVec[j].getMidPrice();
+            if (ltcVec[j].getHasShort()) {
+              double longMidPrice = ltcVec[i].getMidPrice();
+              double shortMidPrice = ltcVec[j].getMidPrice();
               if (longMidPrice > 0.0 && shortMidPrice > 0.0) {
                 if (res.volatility[i][j].size() >= params.volatilityPeriod) {
                   res.volatility[i][j].pop_back();
@@ -538,7 +538,7 @@ int main(int argc, char** argv) {
       for (int i = 0; i < numExch; ++i) {
         for (int j = 0; j < numExch; ++j) {
           if (i != j) {
-            if (checkEntry(&btcVec[i], &btcVec[j], res, params)) {
+            if (checkEntry(&ltcVec[i], &ltcVec[j], res, params)) {
               // An entry opportunity has been found!
               res.exposure = std::min(balance[res.idExchLong].leg2, balance[res.idExchShort].leg2);
               if (params.demoMode) {
@@ -570,8 +570,8 @@ int main(int argc, char** argv) {
               }
               // Checks the volumes and, based on that, computes the limit prices
               // that will be sent to the exchanges
-              double volumeLong = res.exposure / btcVec[res.idExchLong].getAsk();
-              double volumeShort = res.exposure / btcVec[res.idExchShort].getBid();
+              double volumeLong = res.exposure / ltcVec[res.idExchLong].getAsk();
+              double volumeShort = res.exposure / ltcVec[res.idExchShort].getBid();
               double limPriceLong = getLimitPrice[res.idExchLong](params, volumeLong, false);
               double limPriceShort = getLimitPrice[res.idExchShort](params, volumeShort, true);
               if (limPriceLong == 0.0 || limPriceShort == 0.0) {
@@ -645,16 +645,16 @@ int main(int argc, char** argv) {
       }
     } else if (inMarket) {
       // We are in market and looking for an exit opportunity
-      if (checkExit(&btcVec[res.idExchLong], &btcVec[res.idExchShort], res, params, currTime)) {
+      if (checkExit(&ltcVec[res.idExchLong], &ltcVec[res.idExchShort], res, params, currTime)) {
         // An exit opportunity has been found!
         // We check the current leg1 exposure
-        std::vector<double> btcUsed(numExch);
+        std::vector<double> ltcUsed(numExch);
         for (int i = 0; i < numExch; ++i) {
-          btcUsed[i] = getActivePos[i](params);
+          ltcUsed[i] = getActivePos[i](params);
         }
         // Checks the volumes and computes the limit prices that will be sent to the exchanges
-        double volumeLong = btcUsed[res.idExchLong];
-        double volumeShort = btcUsed[res.idExchShort];
+        double volumeLong = ltcUsed[res.idExchLong];
+        double volumeShort = ltcUsed[res.idExchShort];
         double limPriceLong = getLimitPrice[res.idExchLong](params, volumeLong, true);
         double limPriceShort = getLimitPrice[res.idExchShort](params, volumeShort, false);
         if (limPriceLong == 0.0 || limPriceShort == 0.0) {
@@ -679,8 +679,8 @@ int main(int argc, char** argv) {
           logFile << params.leg1 << " exposure on " << params.exchName[res.idExchLong] << ": " << volumeLong << '\n'
                   << params.leg1 << " exposure on " << params.exchName[res.idExchShort] << ": " << volumeShort << '\n'
                   << std::endl;
-          auto longOrderId = sendLongOrder[res.idExchLong](params, "sell", fabs(btcUsed[res.idExchLong]), limPriceLong);
-          auto shortOrderId = sendShortOrder[res.idExchShort](params, "buy", fabs(btcUsed[res.idExchShort]), limPriceShort);
+          auto longOrderId = sendLongOrder[res.idExchLong](params, "sell", fabs(ltcUsed[res.idExchLong]), limPriceLong);
+          auto shortOrderId = sendShortOrder[res.idExchShort](params, "buy", fabs(ltcUsed[res.idExchShort]), limPriceShort);
           logFile << "Waiting for the two orders to be filled..." << std::endl;
           sleep_for(millisecs(5000));
           bool isLongOrderComplete = isOrderComplete[res.idExchLong](params, longOrderId);
@@ -703,7 +703,7 @@ int main(int argc, char** argv) {
           inMarket = false;
           for (int i = 0; i < numExch; ++i) {
             balance[i].leg2After = getAvail[i](params, "usd"); // FIXME: currency hard-coded
-            balance[i].leg1After = getAvail[i](params, "btc"); // FIXME: currency hard-coded
+            balance[i].leg1After = getAvail[i](params, "ltc"); // FIXME: currency hard-coded
           }
           for (int i = 0; i < numExch; ++i) {
             logFile << "New balance on " << params.exchName[i] << ":  \t";

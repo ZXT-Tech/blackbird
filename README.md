@@ -26,7 +26,7 @@ Unlike other Bitcoin arbitrage systems, Blackbird doesn't sell but actually _sho
 
 1. The strategy is always market-neutral: the Bitcoin market's moves (up or down) don't impact the strategy returns. This removes a huge risk from the strategy. The Bitcoin market could suddenly lose half its value that this won't make any difference in the strategy returns.
 
-2. The strategy doesn't need to transfer funds (USD or BTC) between Bitcoin exchanges. The buy/sell and sell/buy trading activities are done in parallel on two different exchanges, independently. Advantage: no need to deal with transfer latency issues.
+2. The strategy doesn't need to transfer funds (USD or LTC) between Bitcoin exchanges. The buy/sell and sell/buy trading activities are done in parallel on two different exchanges, independently. Advantage: no need to deal with transfer latency issues.
 
 More details about _short selling_ and _market neutrality_ can be found on <a href="https://github.com/butor/blackbird/issues/100" target="_blank">issue #100</a>.
 
@@ -48,9 +48,9 @@ Blackbird uses functions written by <a href="http://www.adp-gmbh.ch/cpp/common/b
 
 Please make sure that you understand the disclaimer above if you want to test Blackbird with real money, and start with a small amount of money.
 
-__IMPORTANT: all your BTC accounts must be empty before starting Blackbird. Make sure that you only have USD on your accounts and no BTC.__
+__IMPORTANT: all your LTC accounts must be empty before starting Blackbird. Make sure that you only have USD on your accounts and no LTC.__
 
-It is never entirely safe to just tell Blackbird to use, say, $25 per exchange. You also need to only have $25 available on each of your trading accounts as well as 0 BTC. In this case, you are sure that even with a bug your maximum loss on an exchange won't be greater than $25 no matter what.
+It is never entirely safe to just tell Blackbird to use, say, $25 per exchange. You also need to only have $25 available on each of your trading accounts as well as 0 LTC. In this case, you are sure that even with a bug your maximum loss on an exchange won't be greater than $25 no matter what.
 
 Note: on Bitfinex, your money has to be available on the _Margin_ account.
 
@@ -74,12 +74,12 @@ Note: on Bitfinex, your money has to be available on the _Margin_ account.
 
 | Exchange | Long | Short | Note |
 | -------- |:----:|:-----:| ---- |
-| <a href="https://poloniex.com" target="_blank">Poloniex</a> | ✓ | ✓ | BTC/USD trading not supported, BTC/USDT margin trading not supported |
+| <a href="https://poloniex.com" target="_blank">Poloniex</a> | ✓ | ✓ | LTC/USD trading not supported, LTC/USDT margin trading not supported |
 | <a href="https://cex.io/" target="_blank">CEX.IO</a> | ✓ | ✓ | Implementation in progress |
 | <a href="https://wex.nz" target="_blank">WEX</a> | ✓ |  |  |
 | <a href="https://www.itbit.com" target="_blank">itBit</a> | ✓ |  |  |
-| <a href="https://bittrex.com" target="_blank">Bittrex</a> | ✓ |  | Implementation in progress, BTC/USD not supported (coming soon.) |
-| <a href="https://binance.com" target="_blank">Binance</a> | ✓ |  | Implementation in progress, BTC/USD not supported |
+| <a href="https://bittrex.com" target="_blank">Bittrex</a> | ✓ |  | Implementation in progress, LTC/USD not supported (coming soon.) |
+| <a href="https://binance.com" target="_blank">Binance</a> | ✓ |  | Implementation in progress, LTC/USD not supported |
 
 If `DemoMode=true`, all the exchanges are shown in the log file.
 
@@ -96,7 +96,7 @@ Then, you need to add your API keys into the file _blackbird.conf_. You need at 
 Parameter | Default Value | Description
 | ------------ | ------------------- | ------------- |
 | DemoMode | true | The demo mode will show the spreads but won't actually trade anything |
-| Leg1 | BTC | The first leg of the traded pair. This leg is hedged against market risk |
+| Leg1 | LTC | The first leg of the traded pair. This leg is hedged against market risk |
 | Leg2 | USD | The second leg of the traded pair. This leg is __not__ hedged against market risk |
 | UseFullExposure | false | When true, all the `Leg2` exposure available on your accounts will be used. Otherwise, the amount defined by `TestedExposure` will be used. Note: the cash used for a trade will be the minimum of the two exchanges, minus 1.00% as a small margin: if there is $1,000 on the first account and $1,100 on the second one, $990 will be used for each exchange, i.e. $1,000 - (1% * $1,000). The exposure is $1,980 |
 | TestedExposure | 25 | If UseFullExposure is false, that parameter defines the USD amount that will be used. The minimum has to be $10 otherwise some exchanges might reject the orders |
@@ -258,10 +258,10 @@ DISCLAIMER: USE THE SOFTWARE AT YOUR OWN RISK.
    Spread Target: 0.30%
 
 [ Current balances ]
-   Bitfinex:    1,857.79 USD    0.000000 BTC
-   OKCoin:      1,801.38 USD    0.000436 BTC
-   Bitstamp:    1,694.15 USD    0.000000 BTC
-   Gemini:      1,720.38 USD    0.000000 BTC
+   Bitfinex:    1,857.79 USD    0.000000 LTC
+   OKCoin:      1,801.38 USD    0.000436 LTC
+   Bitstamp:    1,694.15 USD    0.000000 LTC
+   Gemini:      1,720.38 USD    0.000000 LTC
 
 [ Cash exposure ]
    FULL cash used!

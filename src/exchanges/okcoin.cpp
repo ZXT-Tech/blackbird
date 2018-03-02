@@ -50,9 +50,9 @@ double getAvail(Parameters& params, std::string currency)
   {
     returnedText = json_string_value(json_object_get(json_object_get(json_object_get(json_object_get(root.get(), "info"), "funds"), "free"), "usd"));
   }
-  else if (currency == "btc")
+  else if (currency == "ltc")
   {
-    returnedText = json_string_value(json_object_get(json_object_get(json_object_get(json_object_get(root.get(), "info"), "funds"), "free"), "btc"));
+    returnedText = json_string_value(json_object_get(json_object_get(json_object_get(json_object_get(root.get(), "info"), "funds"), "free"), "ltc"));
   }
   else returnedText = "0.0";
 
@@ -69,12 +69,12 @@ std::string sendLongOrder(Parameters& params, std::string direction, double quan
 {
   // signature
   std::ostringstream oss;
-  oss << "amount=" << quantity << "&api_key=" << params.okcoinApi << "&price=" << price << "&symbol=btc_usd&type=" << direction << "&secret_key=" << params.okcoinSecret;
+  oss << "amount=" << quantity << "&api_key=" << params.okcoinApi << "&price=" << price << "&symbol=ltc_usd&type=" << direction << "&secret_key=" << params.okcoinSecret;
   std::string signature = oss.str();
   oss.clear();
   oss.str("");
   // content
-  oss << "amount=" << quantity << "&api_key=" << params.okcoinApi << "&price=" << price << "&symbol=btc_usd&type=" << direction;
+  oss << "amount=" << quantity << "&api_key=" << params.okcoinApi << "&price=" << price << "&symbol=ltc_usd&type=" << direction;
   std::string content = oss.str();
   *params.logFile << "<OKCoin> Trying to send a \"" << direction << "\" limit order: "
                   << std::setprecision(6) << quantity << "@$"
@@ -92,11 +92,11 @@ std::string sendShortOrder(Parameters& params, std::string direction, double qua
   // Here are the steps:
   // Step                                     | Function
   // -----------------------------------------|----------------------
-  //  1. ask to borrow bitcoins               | borrowBtc(amount) FIXME bug "10007: Signature does not match"
+  //  1. ask to borrow bitcoins               | borrowLtc(amount) FIXME bug "10007: Signature does not match"
   //  2. sell the bitcoins on the market      | sendShortOrder("sell")
   //  3. <wait for the spread to close>       |
   //  4. buy back the bitcoins on the market  | sendShortOrder("buy")
-  //  5. repay the bitcoins to the lender     | repayBtc(borrowId)
+  //  5. repay the bitcoins to the lender     | repayLtc(borrowId)
   return "0";
 }
 
@@ -106,12 +106,12 @@ bool isOrderComplete(Parameters& params, std::string orderId)
 
   // signature
   std::ostringstream oss;
-  oss << "api_key=" << params.okcoinApi << "&order_id=" << orderId << "&symbol=btc_usd" << "&secret_key=" << params.okcoinSecret;
+  oss << "api_key=" << params.okcoinApi << "&order_id=" << orderId << "&symbol=ltc_usd" << "&secret_key=" << params.okcoinSecret;
   std::string signature = oss.str();
   oss.clear();
   oss.str("");
   // content
-  oss << "api_key=" << params.okcoinApi << "&order_id=" << orderId << "&symbol=btc_usd";
+  oss << "api_key=" << params.okcoinApi << "&order_id=" << orderId << "&symbol=ltc_usd";
   std::string content = oss.str();
   unique_json root { authRequest(params, "https://www.okcoin.com/api/v1/order_info.do", signature, content) };
   auto status = json_integer_value(json_object_get(json_array_get(json_object_get(root.get(), "orders"), 0), "status"));
@@ -119,17 +119,17 @@ bool isOrderComplete(Parameters& params, std::string orderId)
   return status == 2;
 }
 
-double getActivePos(Parameters& params) { return getAvail(params, "btc"); }
+double getActivePos(Parameters& params) { return getAvail(params, "ltc"); }
 
 double getLimitPrice(Parameters& params, double volume, bool isBid)
 {
   auto &exchange = queryHandle(params);
-  unique_json root { exchange.getRequest("/api/v1/depth.do?symbol=btc_usd") };
+  unique_json root { exchange.getRequest("/api/v1/depth.do?symbol=ltc_usd") };
   auto bidask = json_object_get(root.get(), isBid ? "bids" : "asks");
 
   // loop on volume
   *params.logFile << "<OKCoin> Looking for a limit price to fill "
-                  << std::setprecision(6) << fabs(volume) << " BTC...\n";
+                  << std::setprecision(6) << fabs(volume) << " LTC...\n";
   double tmpVol = 0.0;
   double p = 0.0;
   double v;
@@ -207,11 +207,11 @@ json_t* authRequest(Parameters& params, std::string url, std::string signature, 
 void getBorrowInfo(Parameters& params)
 {
   std::ostringstream oss;
-  oss << "api_key=" << params.okcoinApi << "&symbol=btc_usd&secret_key=" << params.okcoinSecret;
+  oss << "api_key=" << params.okcoinApi << "&symbol=ltc_usd&secret_key=" << params.okcoinSecret;
   std::string signature = oss.str();
   oss.clear();
   oss.str("");
-  oss << "api_key=" << params.okcoinApi << "&symbol=btc_usd";
+  oss << "api_key=" << params.okcoinApi << "&symbol=ltc_usd";
   std::string content = oss.str();
   unique_json root { authRequest(params, "https://www.okcoin.com/api/v1/borrows_info.do", signature, content) };
   auto dump = json_dumps(root.get(), 0);
@@ -219,20 +219,20 @@ void getBorrowInfo(Parameters& params)
   free(dump);
 }
 
-int borrowBtc(Parameters& params, double amount)
+int borrowLtc(Parameters& params, double amount)
 {
   std::ostringstream oss;
-  oss << "api_key=" << params.okcoinApi << "&symbol=btc_usd&days=fifteen&amount=" << 1 << "&rate=0.0001&secret_key=" << params.okcoinSecret;
+  oss << "api_key=" << params.okcoinApi << "&symbol=ltc_usd&days=fifteen&amount=" << 1 << "&rate=0.0001&secret_key=" << params.okcoinSecret;
   std::string signature = oss.str();
   oss.clear();
   oss.str("");
-  oss << "api_key=" << params.okcoinApi << "&symbol=btc_usd&days=fifteen&amount=" << 1 << "&rate=0.0001";
+  oss << "api_key=" << params.okcoinApi << "&symbol=ltc_usd&days=fifteen&amount=" << 1 << "&rate=0.0001";
   std::string content = oss.str();
   unique_json root { authRequest(params, "https://www.okcoin.com/api/v1/borrow_money.do", signature, content) };
   auto dump = json_dumps(root.get(), 0);
   *params.logFile << "<OKCoin> Borrow "
                   << std::setprecision(6) << amount
-                  << " BTC:\n" << dump << std::endl;
+                  << " LTC:\n" << dump << std::endl;
   free(dump);
   bool isBorrowAccepted = json_is_true(json_object_get(root.get(), "result"));
   return isBorrowAccepted ?
@@ -240,7 +240,7 @@ int borrowBtc(Parameters& params, double amount)
          0;
 }
 
-void repayBtc(Parameters& params, int borrowId)
+void repayLtc(Parameters& params, int borrowId)
 {
   std::ostringstream oss;
   oss << "api_key=" << params.okcoinApi << "&borrow_id=" << borrowId << "&secret_key=" << params.okcoinSecret;
@@ -251,7 +251,7 @@ void repayBtc(Parameters& params, int borrowId)
   std::string content = oss.str();
   unique_json root { authRequest(params, "https://www.okcoin.com/api/v1/repayment.do", signature, content) };
   auto dump = json_dumps(root.get(), 0);
-  *params.logFile << "<OKCoin> Repay borrowed BTC:\n" << dump << std::endl;
+  *params.logFile << "<OKCoin> Repay borrowed LTC:\n" << dump << std::endl;
   free(dump);
 }
 

@@ -28,7 +28,7 @@ static RestApi& queryHandle(Parameters &params)
 quote_t getQuote(Parameters &params)
 {
   auto &exchange = queryHandle(params); 
-  auto root = unique_json(exchange.getRequest("/v2/ticker?book=btc_usd"));
+  auto root = unique_json(exchange.getRequest("/v2/ticker?book=ltc_usd"));
 
   auto quote = json_string_value(json_object_get(root.get(), "bid"));
   auto bidValue = quote ? std::stod(quote) : 0.0;
@@ -48,8 +48,8 @@ double getAvail(Parameters& params, std::string currency)
   const char * key = nullptr;
   if (currency.compare("usd") == 0) {
     key = "usd_available";
-  } else if (currency.compare("btc") == 0) {
-    key = "btc_available";
+  } else if (currency.compare("ltc") == 0) {
+    key = "ltc_available";
   } else if (currency.compare("eth") == 0) {
     key = "eth_available";
   } else if (currency.compare("cad") == 0) {
@@ -80,7 +80,7 @@ std::string sendLongOrder(Parameters& params, std::string direction, double quan
   std::string amount = oss.str();
 
   unique_json options {json_object()};
-  json_object_set_new(options.get(), "book", json_string("btc_usd"));
+  json_object_set_new(options.get(), "book", json_string("ltc_usd"));
   json_object_set_new(options.get(), "amount", json_string(amount.c_str()));
   json_object_set_new(options.get(), "price", json_real(price));
 
@@ -126,14 +126,14 @@ bool isOrderComplete(Parameters& params, std::string orderId)
 }
 
 double getActivePos(Parameters& params) {
-  return getAvail(params, "btc");
+  return getAvail(params, "ltc");
 }
 
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
 {
   auto &exchange = queryHandle(params);
-  auto root = unique_json(exchange.getRequest("/v2/order_book?book=btc_usd"));
+  auto root = unique_json(exchange.getRequest("/v2/order_book?book=ltc_usd"));
   auto branch = json_object_get(root.get(), isBid ? "bids" : "asks");
 
   // loop on volume
@@ -222,21 +222,21 @@ void testQuadriga(){
 
     std::string orderId;
 
-    std::cout << "Current value BTC_USD bid: " << getQuote(params).bid() << std::endl;
-    std::cout << "Current value BTC_USD ask: " << getQuote(params).ask() << std::endl;
-    std::cout << "Current balance BTC: " << getAvail(params, "btc") << std::endl;
+    std::cout << "Current value LTC_USD bid: " << getQuote(params).bid() << std::endl;
+    std::cout << "Current value LTC_USD ask: " << getQuote(params).ask() << std::endl;
+    std::cout << "Current balance LTC: " << getAvail(params, "ltc") << std::endl;
     std::cout << "Current balance USD: " << getAvail(params, "usd")<< std::endl;
     std::cout << "Current balance ETH: " << getAvail(params, "eth")<< std::endl;
     std::cout << "Current balance CAD: " << getAvail(params, "cad")<< std::endl;
     std::cout << "current bid limit price for 10 units: " << getLimitPrice(params, 10.0, true) << std::endl;
     std::cout << "Current ask limit price for 10 units: " << getLimitPrice(params, 10.0, false) << std::endl;
 
-    std::cout << "Sending buy order for 0.005 BTC @ 1000 USD - TXID: " ;
+    std::cout << "Sending buy order for 0.005 LTC @ 1000 USD - TXID: " ;
     orderId = sendLongOrder(params, "buy", 0.005, 1000);
     std:: cout << orderId << std::endl;
     std::cout << "Buy order is complete: " << isOrderComplete(params, orderId) << std::endl;
 
-    std::cout << "Sending sell order for 0.005 BTC @ 5000 USD - TXID: " ;
+    std::cout << "Sending sell order for 0.005 LTC @ 5000 USD - TXID: " ;
     orderId = sendLongOrder(params, "sell", 0.005, 5000);
     std:: cout << orderId << std::endl;
     std::cout << "Sell order is complete: " << isOrderComplete(params, orderId) << std::endl;

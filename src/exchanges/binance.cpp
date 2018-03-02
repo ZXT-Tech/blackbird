@@ -33,7 +33,7 @@ quote_t getQuote(Parameters &params)
     std::string x;
     //TODO: build real currency string
     x += "/api/v3/ticker/bookTicker?symbol=";
-    x += "BTCUSDT";
+    x += "LTCUSDT";
     //params.leg2.c_str();
     unique_json root{exchange.getRequest(x)};
     double quote = atof(json_string_value(json_object_get(root.get(), "bidPrice")));
@@ -47,7 +47,7 @@ quote_t getQuote(Parameters &params)
 double getAvail(Parameters &params, std::string currency)
 {
     std::string cur_str;
-    //cur_str += "symbol=BTCUSDT";
+    //cur_str += "symbol=LTCUSDT";
     if (currency.compare("USD") == 0)
     {
         cur_str += "USDT";
@@ -92,7 +92,7 @@ std::string sendLongOrder(Parameters &params, std::string direction, double quan
     *params.logFile << "<Binance> Trying to send a \"" << direction << "\" limit order: "
                     << std::setprecision(8) << quantity << " @ $"
                     << std::setprecision(8) << price << "...\n";
-    std::string symbol = "BTCUSDT";
+    std::string symbol = "LTCUSDT";
     std::transform(direction.begin(), direction.end(), direction.begin(), toupper);
     std::string type = "LIMIT";
     std::string tif = "GTC";
@@ -136,14 +136,14 @@ bool isOrderComplete(Parameters &params, std::string orderId)
 //TODO: Currency
 double getActivePos(Parameters &params)
 {
-    return getAvail(params, "BTC");
+    return getAvail(params, "LTC");
 }
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
 {
     auto &exchange = queryHandle(params);
     //TODO build a real URI string here
-    unique_json root{exchange.getRequest("/api/v1/depth?symbol=BTCUSDT")};
+    unique_json root{exchange.getRequest("/api/v1/depth?symbol=LTCUSDT")};
     auto bidask = json_object_get(root.get(), isBid ? "bids" : "asks");
     *params.logFile << "<Binance Looking for a limit price to fill "
                     << std::setprecision(8) << fabs(volume) << " Legx...\n";
@@ -224,18 +224,18 @@ void testBinance()
 
     //std::cout << "Current value LEG1_LEG2 bid: " << getQuote(params).bid() << std::endl;
     //std::cout << "Current value LEG1_LEG2 ask: " << getQuote(params).ask() << std::endl;
-    //std::cout << "Current balance BTC: " << getAvail(params, "BTC") << std::endl;
+    //std::cout << "Current balance LTC: " << getAvail(params, "LTC") << std::endl;
     //std::cout << "Current balance USD: " << getAvail(params, "USD")<< std::endl;
     //std::cout << "Current balance ETH: " << getAvail(params, "ETH")<< std::endl;
     //std::cout << "Current balance BNB: " << getAvail(params, "BNB")<< std::endl;
     //std::cout << "current bid limit price for .04 units: " << getLimitPrice(params, 0.04, true) << std::endl;
     //std::cout << "Current ask limit price for 10 units: " << getLimitPrice(params, 10.0, false) << std::endl;
-    //std::cout << "Sending buy order for 0.003603 BTC @ BID! - TXID: " << std::endl;
+    //std::cout << "Sending buy order for 0.003603 LTC @ BID! - TXID: " << std::endl;
     //orderId = sendLongOrder(params, "buy", 0.003603, getLimitPrice(params,0.003603,true));
     //std::cout << orderId << std::endl;
     //std::cout << "Buy Order is complete: " << isOrderComplete(params, orderId) << std::endl;
 
-    //std::cout << "Sending sell order for 0.003603 BTC @ 10000 USD - TXID: " << std::endl;
+    //std::cout << "Sending sell order for 0.003603 LTC @ 10000 USD - TXID: " << std::endl;
     //orderId = sendLongOrder(params, "sell", 0.003603, 10000);
     //std::cout << orderId << std::endl;
     //std::cout << "Sell order is complete: " << isOrderComplete(params, orderId) << std::endl;

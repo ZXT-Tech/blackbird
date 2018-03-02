@@ -26,12 +26,12 @@ static RestApi& queryHandle(Parameters &params)
 quote_t getQuote(Parameters &params)
 {
   auto &exchange = queryHandle(params); 
-  auto root = unique_json(exchange.getRequest("/order_book/?pair=BTC_USD"));
+  auto root = unique_json(exchange.getRequest("/order_book/?pair=LTC_USD"));
 
-  auto quote = json_string_value(json_object_get(json_object_get(root.get(), "BTC_USD"), "bid_top"));
+  auto quote = json_string_value(json_object_get(json_object_get(root.get(), "LTC_USD"), "bid_top"));
   auto bidValue = quote ? std::stod(quote) : 0.0;
 
-  quote = json_string_value(json_object_get(json_object_get(root.get(), "BTC_USD"), "ask_top"));
+  quote = json_string_value(json_object_get(json_object_get(root.get(), "LTC_USD"), "ask_top"));
   auto askValue = quote ? std::stod(quote) : 0.0;
 
   return std::make_pair(bidValue, askValue);
@@ -54,7 +54,7 @@ double getAvail(Parameters& params, std::string currency)
 //std::string sendLongOrder(Parameters& params, std::string direction, double quantity, double price, std::string pair) {
 std::string sendLongOrder(Parameters& params, std::string direction, double quantity, double price) {
   using namespace std;
-  string pair = "btc_usd"; // TODO remove when multi currency support
+  string pair = "ltc_usd"; // TODO remove when multi currency support
   *params.logFile << "<Exmo> Trying to send a " << pair << " " << direction << " limit order: " << quantity << "@" << price << endl;
   transform(pair.begin(), pair.end(), pair.begin(), ::toupper);
 
@@ -82,7 +82,7 @@ std::string sendLongOrder(Parameters& params, std::string direction, double quan
 //bool isOrderComplete(Parameters& params, std::string orderId, std::string pair) 
 bool isOrderComplete(Parameters& params, std::string orderId) {
   using namespace std;
-  string pair = "btc_usd"; // TODO remove when multi currency support
+  string pair = "ltc_usd"; // TODO remove when multi currency support
   transform(pair.begin(), pair.end(), pair.begin(), ::toupper);
   
   unique_json rootOrd { authRequest(params, "/user_open_orders") };
@@ -114,15 +114,15 @@ bool isOrderComplete(Parameters& params, std::string orderId) {
 
 
 double getActivePos(Parameters& params) {
-  return getAvail(params, "btc");
+  return getAvail(params, "ltc");
 }
 
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
 {
   auto &exchange = queryHandle(params);
-  auto root = unique_json(exchange.getRequest("/order_book?pair=BTC_USD"));
-  auto branch = json_object_get(json_object_get(root.get(), "BTC_USD"), isBid ? "bid" : "ask");
+  auto root = unique_json(exchange.getRequest("/order_book?pair=LTC_USD"));
+  auto branch = json_object_get(json_object_get(root.get(), "LTC_USD"), isBid ? "bid" : "ask");
 
   // loop on volume
   double totVol = 0.0;
@@ -194,9 +194,9 @@ void testExmo() {
 
   string orderId;
 
-  cout << "Current value BTC_USD bid: " << getQuote(params).bid() << endl;
-  cout << "Current value BTC_USD ask: " << getQuote(params).ask() << endl;
-  cout << "Current balance BTC: " << getAvail(params, "btc") << endl;
+  cout << "Current value LTC_USD bid: " << getQuote(params).bid() << endl;
+  cout << "Current value LTC_USD ask: " << getQuote(params).ask() << endl;
+  cout << "Current balance LTC: " << getAvail(params, "ltc") << endl;
   cout << "Current balance USD: " << getAvail(params, "usd") << endl;
   cout << "Current balance XMR: " << getAvail(params, "xmr")<< endl;
   cout << "Current balance EUR: " << getAvail(params, "eur")<< endl;

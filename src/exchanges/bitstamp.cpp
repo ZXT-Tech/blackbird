@@ -68,9 +68,9 @@ double getAvail(Parameters& params, std::string currency)
   }
   double availability = 0.0;
   const char* returnedText = NULL;
-  if (currency == "btc")
+  if (currency == "ltc")
   {
-    returnedText = json_string_value(json_object_get(root.get(), "btc_balance"));
+    returnedText = json_string_value(json_object_get(root.get(), "ltc_balance"));
   }
   else if (currency == "usd")
   {
@@ -122,7 +122,7 @@ bool isOrderComplete(Parameters& params, std::string orderId)
   return status && status == std::string("Finished");
 }
 
-double getActivePos(Parameters& params) { return getAvail(params, "btc"); }
+double getActivePos(Parameters& params) { return getAvail(params, "ltc"); }
 
 double getLimitPrice(Parameters& params, double volume, bool isBid)
 {
@@ -132,7 +132,7 @@ double getLimitPrice(Parameters& params, double volume, bool isBid)
 
   // loop on volume
   *params.logFile << "<Bitstamp> Looking for a limit price to fill "
-                  << std::setprecision(6) << fabs(volume) << " BTC...\n";
+                  << std::setprecision(6) << fabs(volume) << " LTC...\n";
   double tmpVol = 0.0;
   double p = 0.0;
   double v;

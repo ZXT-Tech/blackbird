@@ -15,7 +15,7 @@ template <typename T>
 static typename std::iterator_traits<T>::value_type compute_sd(T first, const T &last) {
   using namespace std;
   typedef typename iterator_traits<T>::value_type value_type;
-  
+
   auto n  = distance(first, last);
   auto mu = accumulate(first, last, value_type()) / n;
   auto squareSum = inner_product(first, last, first, value_type());
@@ -30,13 +30,13 @@ std::string percToStr(double perc) {
   return s.str();
 }
 
-bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& params) {
-  
-  if (!btcShort->getHasShort()) return false;
+bool checkEntry(Bitcoin* ltcLong, Bitcoin* ltcShort, Result& res, Parameters& params) {
+
+  if (!ltcShort->getHasShort()) return false;
 
   // Gets the prices and computes the spread
-  double priceLong = btcLong->getAsk();
-  double priceShort = btcShort->getBid();
+  double priceLong = ltcLong->getAsk();
+  double priceShort = ltcShort->getBid();
   // If the prices are null we return a null spread
   // to avoid false opportunities
   if (priceLong > 0.0 && priceShort > 0.0) {
@@ -44,8 +44,8 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
   } else {
     res.spreadIn = 0.0;
   }
-  int longId = btcLong->getId();
-  int shortId = btcShort->getId();
+  int longId = ltcLong->getId();
+  int shortId = ltcShort->getId();
 
   // We update the max and min spread if necessary
   res.maxSpread[longId][shortId] = std::max(res.spreadIn, res.maxSpread[longId][shortId]);
@@ -53,7 +53,7 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
 
   if (params.verbose) {
     params.logFile->precision(2);
-    *params.logFile << "   " << btcLong->getExchName() << "/" << btcShort->getExchName() << ":\t" << percToStr(res.spreadIn);
+    *params.logFile << "   " << ltcLong->getExchName() << "/" << ltcShort->getExchName() << ":\t" << percToStr(res.spreadIn);
     *params.logFile << " [target " << percToStr(params.spreadEntry) << ", min " << percToStr(res.minSpread[longId][shortId]) << ", max " << percToStr(res.maxSpread[longId][shortId]) << "]";
     // The short-term volatility is computed and
     // displayed. No other action with it for
@@ -74,7 +74,7 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
     }
     // If one of the exchanges (or both) hasn't been implemented,
     // we mention in the log file that this spread is for info only.
-    if ((!btcLong->getIsImplemented() || !btcShort->getIsImplemented()) && !params.demoMode)
+    if ((!ltcLong->getIsImplemented() || !ltcShort->getIsImplemented()) && !params.demoMode)
       *params.logFile << "   info only";
 
     *params.logFile << std::endl;
@@ -82,8 +82,8 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
   // We need both exchanges to be implemented,
   // otherwise we return False regardless of
   // the opportunity found.
-  if (!btcLong->getIsImplemented() ||
-      !btcShort->getIsImplemented() ||
+  if (!ltcLong->getIsImplemented() ||
+      !ltcShort->getIsImplemented() ||
       res.spreadIn == 0.0)
     return false;
 
@@ -123,10 +123,10 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
   // was found).
   res.idExchLong = longId;
   res.idExchShort = shortId;
-  res.feesLong = btcLong->getFees();
-  res.feesShort = btcShort->getFees();
-  res.exchNameLong = btcLong->getExchName();
-  res.exchNameShort = btcShort->getExchName();
+  res.feesLong = ltcLong->getFees();
+  res.feesShort = ltcShort->getFees();
+  res.exchNameLong = ltcLong->getExchName();
+  res.exchNameShort = ltcShort->getExchName();
   res.priceLongIn = priceLong;
   res.priceShortIn = priceShort;
   res.exitTarget = res.spreadIn - params.spreadTarget - 2.0*(res.feesLong + res.feesShort);
@@ -134,23 +134,23 @@ bool checkEntry(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& pa
   return true;
 }
 
-bool checkExit(Bitcoin* btcLong, Bitcoin* btcShort, Result& res, Parameters& params, time_t period) {
-  double priceLong  = btcLong->getBid();
-  double priceShort = btcShort->getAsk();
+bool checkExit(Bitcoin* ltcLong, Bitcoin* ltcShort, Result& res, Parameters& params, time_t period) {
+  double priceLong  = ltcLong->getBid();
+  double priceShort = ltcShort->getAsk();
   if (priceLong > 0.0 && priceShort > 0.0) {
     res.spreadOut = (priceShort - priceLong) / priceLong;
   } else {
     res.spreadOut = 0.0;
   }
-  int longId = btcLong->getId();
-  int shortId = btcShort->getId();
+  int longId = ltcLong->getId();
+  int shortId = ltcShort->getId();
 
   res.maxSpread[longId][shortId] = std::max(res.spreadOut, res.maxSpread[longId][shortId]);
   res.minSpread[longId][shortId] = std::min(res.spreadOut, res.minSpread[longId][shortId]);
 
   if (params.verbose) {
     params.logFile->precision(2);
-    *params.logFile << "   " << btcLong->getExchName() << "/" << btcShort->getExchName() << ":\t" << percToStr(res.spreadOut);
+    *params.logFile << "   " << ltcLong->getExchName() << "/" << ltcShort->getExchName() << ":\t" << percToStr(res.spreadOut);
     *params.logFile << " [target " << percToStr(res.exitTarget) << ", min " << percToStr(res.minSpread[longId][shortId]) << ", max " << percToStr(res.maxSpread[longId][shortId]) << "]";
     // The short-term volatility is computed and
     // displayed. No other action with it for

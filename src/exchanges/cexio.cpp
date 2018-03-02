@@ -43,7 +43,7 @@ static json_t* checkResponse(std::ostream &logFile, json_t *root)
 quote_t getQuote(Parameters &params)
 {
   auto &exchange = queryHandle(params); 
-  unique_json root { exchange.getRequest("/ticker/BTC/USD") };
+  unique_json root { exchange.getRequest("/ticker/LTC/USD") };
 
   double bidValue = json_number_value(json_object_get(root.get(), "bid"));
   double askValue = json_number_value(json_object_get(root.get(), "ask"));
@@ -78,7 +78,7 @@ std::string sendShortOrder(Parameters& params, std::string direction, double qua
 std::string sendOrder(Parameters& params, std::string direction, double quantity, double price)
 {
   using namespace std;
-  string pair = "btc_usd";
+  string pair = "ltc_usd";
   string orderId = "";
   *params.logFile << "<Cexio> Trying to send a " << pair << " " << direction << " limit order: " << quantity << "@" << price << endl;
 
@@ -86,7 +86,7 @@ std::string sendOrder(Parameters& params, std::string direction, double quantity
   oss << "type=" << direction << "&amount=" << quantity << "&price=" << fixed << setprecision(2) << price;
   string options = oss.str();
 
-  unique_json root { authRequest(params, "/place_order/BTC/USD/", options) };
+  unique_json root { authRequest(params, "/place_order/LTC/USD/", options) };
   auto error = json_string_value(json_object_get(root.get(), "error"));
   if (error){
     // auto dump = json_dumps(root.get(), 0);
@@ -120,12 +120,12 @@ bool isOrderComplete(Parameters& params, std::string orderId)
   return tmp;
 }
 
-double getActivePos(Parameters& params) { return getAvail(params, "btc"); }
+double getActivePos(Parameters& params) { return getAvail(params, "ltc"); }
 
 double getLimitPrice(Parameters &params, double volume, bool isBid)
 {
   auto &exchange = queryHandle(params);
-  auto root = unique_json(exchange.getRequest("/order_book/BTC/USD/"));
+  auto root = unique_json(exchange.getRequest("/order_book/LTC/USD/"));
   auto branch = json_object_get(root.get(), isBid ? "bids" : "asks");
 
   // loop on volume
@@ -179,9 +179,9 @@ void testCexio() {
 
   string orderId;
 
-  cout << "Current value BTC_USD bid: " << getQuote(params).bid() << endl;
-  cout << "Current value BTC_USD ask: " << getQuote(params).ask() << endl;
-  cout << "Current balance BTC: " << getAvail(params, "BTC") << endl;
+  cout << "Current value LTC_USD bid: " << getQuote(params).bid() << endl;
+  cout << "Current value LTC_USD ask: " << getQuote(params).ask() << endl;
+  cout << "Current balance LTC: " << getAvail(params, "LTC") << endl;
   cout << "Current balance BCH: " << getAvail(params, "BCH") << endl;
   cout << "Current balance ETH: " << getAvail(params, "ETH") << endl;
   cout << "Current balance LTC: " << getAvail(params, "LTC") << endl;
@@ -199,14 +199,14 @@ void testCexio() {
   // orderId = sendLongOrder(params, "buy", 0.002, 9510);
   // cout << orderId << endl;
   // cout << "Buy order is complete: " << isOrderComplete(params, orderId) << endl;
-  // cout << "Active positions (BTC): " << getActivePos(params) << endl;
+  // cout << "Active positions (LTC): " << getActivePos(params) << endl;
 
   // cout << "Sending sell order - TXID: " ;
   // orderId = sendLongOrder(params, "sell", 0.002, 8800);
   // cout << orderId << endl;
   // cout << "Sell order is complete: " << isOrderComplete(params, orderId) << endl;
 
-  // cout << "Active positions (BTC): " << getActivePos(params) << endl;
+  // cout << "Active positions (LTC): " << getActivePos(params) << endl;
 
   // cout << "Sending short order - TXID: " ;
   // orderId = sendShortOrder(params, "sell", 0.002, 8800);
